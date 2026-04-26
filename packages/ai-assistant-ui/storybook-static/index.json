@@ -1,0 +1,41 @@
+{
+  "v": 5,
+  "entries": {
+    "ai-assistant-aiassistant--default": {
+      "type": "story",
+      "id": "ai-assistant-aiassistant--default",
+      "name": "Default",
+      "title": "AI Assistant/AiAssistant",
+      "importPath": "./src/AiAssistant.stories.tsx",
+      "componentPath": "./src/AiAssistant.tsx",
+      "tags": ["dev", "test"]
+    },
+    "ai-assistant-aiassistant--history-collapsed": {
+      "type": "story",
+      "id": "ai-assistant-aiassistant--history-collapsed",
+      "name": "History Collapsed",
+      "title": "AI Assistant/AiAssistant",
+      "importPath": "./src/AiAssistant.stories.tsx",
+      "componentPath": "./src/AiAssistant.tsx",
+      "tags": ["dev", "test"]
+    },
+    "ai-assistant-aiassistant--empty-state": {
+      "type": "story",
+      "id": "ai-assistant-aiassistant--empty-state",
+      "name": "Empty State",
+      "title": "AI Assistant/AiAssistant",
+      "importPath": "./src/AiAssistant.stories.tsx",
+      "componentPath": "./src/AiAssistant.tsx",
+      "tags": ["dev", "test"]
+    },
+    "ai-assistant-aiassistant--with-error": {
+      "type": "story",
+      "id": "ai-assistant-aiassistant--with-error",
+      "name": "With Error",
+      "title": "AI Assistant/AiAssistant",
+      "importPath": "./src/AiAssistant.stories.tsx",
+      "componentPath": "./src/AiAssistant.tsx",
+      "tags": ["dev", "test"]
+    }
+  }
+}

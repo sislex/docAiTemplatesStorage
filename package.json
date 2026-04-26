@@ -3,8 +3,12 @@
   "version": "0.0.1",
   "private": true,
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "apps/backend",
+    "apps/frontend",
+    "packages/i18n",
+    "packages/shared-types",
+    "packages/test-utils",
+    "packages/ai-assistant-ui"
   ],
   "scripts": {
     "dev:backend": "npm run dev --workspace=apps/backend",

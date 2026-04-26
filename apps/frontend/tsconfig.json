@@ -5,6 +5,7 @@
     "target": "ES2022",
     "module": "ES2022",
     "moduleResolution": "bundler",
+    "jsx": "react-jsx",
     "lib": ["ES2022", "dom"],
     "strict": true,
     "esModuleInterop": true,
@@ -14,6 +15,7 @@
     "useDefineForClassFields": false,
     "baseUrl": "./",
     "paths": {
+      "@templateStorage/ai-assistant-ui": ["../../packages/ai-assistant-ui/src/index.ts"],
       "@templateStorage/*": ["../../packages/*/src"],
       "@app/*": ["src/app/*"]
     }
@@ -24,6 +26,6 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": true
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["**/*.spec.ts", "node_modules", "dist"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["**/*.spec.ts", "**/*.spec.tsx", "node_modules", "dist"]
 }
