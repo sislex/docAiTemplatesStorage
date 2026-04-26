@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist/out-tsc-spec",
+    "types": ["jest", "node"],
+    "paths": {
+      "@templateStorage/*": ["../../packages/*/src"],
+      "@app/*": ["src/app/*"],
+      "@angular/core/testing": ["../../node_modules/@angular/core/types/testing.d.ts"],
+      "@ngrx/effects/testing": ["../../node_modules/@ngrx/effects/types/ngrx-effects-testing.d.ts"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

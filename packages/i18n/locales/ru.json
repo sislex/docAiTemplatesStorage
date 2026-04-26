@@ -1,0 +1,78 @@
+{
+  "nav": {
+    "catalog": "Каталог шаблонов",
+    "upload": "Загрузить шаблон",
+    "settings": "Настройки",
+    "home": "Главная"
+  },
+  "catalog": {
+    "title": "Шаблоны",
+    "empty": "Шаблоны не найдены",
+    "search": "Поиск по шаблонам",
+    "column.name": "Название",
+    "column.description": "Описание",
+    "column.placeholders": "Плейсхолдеры",
+    "column.createdAt": "Дата создания",
+    "column.updatedAt": "Обновлено",
+    "column.actions": "Действия"
+  },
+  "upload": {
+    "title": "Загрузка шаблона",
+    "button": "Выбрать файл",
+    "drop": "Перетащите DOCX-файл сюда",
+    "hint": "Формат: DOCX, максимум 20 МБ",
+    "submit": "Загрузить",
+    "success": "Шаблон «{name}» успешно загружен",
+    "name.label": "Название",
+    "name.placeholder": "Введите название шаблона",
+    "description.label": "Описание",
+    "description.placeholder": "Краткое описание назначения шаблона"
+  },
+  "detail": {
+    "title": "Шаблон: {name}",
+    "placeholders": "Плейсхолдеры",
+    "generate": "Сформировать документ",
+    "download": "Скачать шаблон",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "createdAt": "Создан: {date}",
+    "updatedAt": "Обновлён: {date}",
+    "noPlaceholders": "Плейсхолдеры отсутствуют"
+  },
+  "edit": {
+    "title": "Редактирование шаблона",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "replaceFile": "Заменить файл",
+    "success": "Шаблон «{name}» обновлён"
+  },
+  "errors": {
+    "TEMPLATE_NOT_FOUND": "Шаблон не найден",
+    "TEMPLATE_ALREADY_EXISTS": "Шаблон с таким идентификатором уже существует",
+    "INVALID_FILE_TYPE": "Недопустимый тип файла. Ожидается DOCX",
+    "FILE_TOO_LARGE": "Файл превышает допустимый размер ({max})",
+    "FILE_CORRUPTED": "Файл повреждён или не является корректным DOCX",
+    "INVALID_PLACEHOLDER_SYNTAX": "Недопустимый синтаксис плейсхолдера: {name}",
+    "STORAGE_WRITE_ERROR": "Ошибка записи файла. Попробуйте позже",
+    "STORAGE_READ_ERROR": "Ошибка чтения файла. Попробуйте позже",
+    "STORAGE_DELETE_ERROR": "Ошибка удаления файла. Попробуйте позже",
+    "MISSING_REQUIRED_FIELD": "Не заполнено обязательное поле: {field}",
+    "GENERATE_FAILED": "Ошибка генерации документа",
+    "UNKNOWN_ERROR": "Произошла неизвестная ошибка"
+  },
+  "warnings": {
+    "UNKNOWN_PLACEHOLDER": "Неизвестный плейсхолдер: {name}",
+    "MISSING_PLACEHOLDER_VALUE": "Значение для плейсхолдера «{name}» не передано — оставлено пустым",
+    "FILE_SIZE_NEAR_LIMIT": "Файл близок к максимальному допустимому размеру"
+  },
+  "confirm": {
+    "delete.title": "Удалить шаблон?",
+    "delete.message": "Шаблон «{name}» будет удалён без возможности восстановления.",
+    "delete.confirm": "Удалить",
+    "delete.cancel": "Отмена",
+    "replace.title": "Заменить файл шаблона?",
+    "replace.message": "Текущий файл будет заменён. Действие необратимо.",
+    "replace.confirm": "Заменить",
+    "replace.cancel": "Отмена"
+  }
+}

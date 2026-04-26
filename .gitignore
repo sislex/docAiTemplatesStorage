@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.npm/
+
+# Build outputs
+dist/
+build/
+.next/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+*.swp
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Generated test fixtures (recreated via pretest)
+packages/test-utils/fixtures/
+
+# Storage (templates committed via .gitkeep only)
+storage/templates/*
+!storage/templates/.gitkeep
+
+
+

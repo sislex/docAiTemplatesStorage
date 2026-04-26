@@ -1,0 +1,78 @@
+{
+  "nav": {
+    "catalog": "Template Catalog",
+    "upload": "Upload Template",
+    "settings": "Settings",
+    "home": "Home"
+  },
+  "catalog": {
+    "title": "Templates",
+    "empty": "No templates found",
+    "search": "Search templates",
+    "column.name": "Name",
+    "column.description": "Description",
+    "column.placeholders": "Placeholders",
+    "column.createdAt": "Created At",
+    "column.updatedAt": "Updated At",
+    "column.actions": "Actions"
+  },
+  "upload": {
+    "title": "Upload Template",
+    "button": "Choose File",
+    "drop": "Drop DOCX file here",
+    "hint": "Format: DOCX, max 20 MB",
+    "submit": "Upload",
+    "success": "Template \"{name}\" uploaded successfully",
+    "name.label": "Name",
+    "name.placeholder": "Enter template name",
+    "description.label": "Description",
+    "description.placeholder": "Brief description of the template"
+  },
+  "detail": {
+    "title": "Template: {name}",
+    "placeholders": "Placeholders",
+    "generate": "Generate Document",
+    "download": "Download Template",
+    "edit": "Edit",
+    "delete": "Delete",
+    "createdAt": "Created: {date}",
+    "updatedAt": "Updated: {date}",
+    "noPlaceholders": "No placeholders defined"
+  },
+  "edit": {
+    "title": "Edit Template",
+    "save": "Save",
+    "cancel": "Cancel",
+    "replaceFile": "Replace File",
+    "success": "Template \"{name}\" updated"
+  },
+  "errors": {
+    "TEMPLATE_NOT_FOUND": "Template not found",
+    "TEMPLATE_ALREADY_EXISTS": "A template with this ID already exists",
+    "INVALID_FILE_TYPE": "Invalid file type. Expected DOCX",
+    "FILE_TOO_LARGE": "File exceeds the maximum allowed size ({max})",
+    "FILE_CORRUPTED": "File is corrupted or is not a valid DOCX",
+    "INVALID_PLACEHOLDER_SYNTAX": "Invalid placeholder syntax: {name}",
+    "STORAGE_WRITE_ERROR": "File write error. Please try again later",
+    "STORAGE_READ_ERROR": "File read error. Please try again later",
+    "STORAGE_DELETE_ERROR": "File delete error. Please try again later",
+    "MISSING_REQUIRED_FIELD": "Required field is missing: {field}",
+    "GENERATE_FAILED": "Document generation failed",
+    "UNKNOWN_ERROR": "An unknown error occurred"
+  },
+  "warnings": {
+    "UNKNOWN_PLACEHOLDER": "Unknown placeholder: {name}",
+    "MISSING_PLACEHOLDER_VALUE": "No value provided for placeholder \"{name}\" — left empty",
+    "FILE_SIZE_NEAR_LIMIT": "File size is close to the maximum allowed limit"
+  },
+  "confirm": {
+    "delete.title": "Delete template?",
+    "delete.message": "Template \"{name}\" will be permanently deleted.",
+    "delete.confirm": "Delete",
+    "delete.cancel": "Cancel",
+    "replace.title": "Replace template file?",
+    "replace.message": "The current file will be replaced. This action cannot be undone.",
+    "replace.confirm": "Replace",
+    "replace.cancel": "Cancel"
+  }
+}

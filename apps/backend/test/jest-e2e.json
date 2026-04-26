@@ -1,0 +1,27 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "testMatch": ["**/*.e2e-spec.ts"],
+  "moduleNameMapper": {
+    "^@templateStorage/shared-types$": "<rootDir>/../../../packages/shared-types/src/index.ts",
+    "^@templateStorage/i18n$": "<rootDir>/../../../packages/i18n/src/index.ts"
+  },
+  "transform": {
+    "^.+\\.ts$": [
+      "ts-jest",
+      {
+        "tsconfig": {
+          "strict": true,
+          "noImplicitAny": false,
+          "exactOptionalPropertyTypes": false,
+          "experimentalDecorators": true,
+          "emitDecoratorMetadata": true,
+          "module": "CommonJS",
+          "moduleResolution": "Node",
+          "esModuleInterop": true,
+          "target": "ES2022"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "074a408d-ceb7-4a81-91e1-55df1c0422e9",
+  "name": "23",
+  "description": "Uploaded from frontend",
+  "placeholders": [
+    {
+      "name": "key1",
+      "type": "string",
+      "label": "key1",
+      "required": true
+    },
+    {
+      "name": "key2",
+      "type": "string",
+      "label": "key2",
+      "required": true
+    }
+  ],
+  "createdAt": "2026-04-26T10:07:00.394Z",
+  "updatedAt": "2026-04-26T10:16:15.817Z"
+}

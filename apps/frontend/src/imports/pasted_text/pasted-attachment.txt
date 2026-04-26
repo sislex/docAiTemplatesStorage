@@ -1,0 +1,422 @@
+# Figma Make Brief — DocAI Templates Library (Frontend)
+
+> Бриф для генерации фронтенд-приложения в Figma Make поверх backend `apps/backend` (NestJS).
+> Цель текущего фронта — **библиотека шаблонов документов**: загрузка DOCX, хранение файла и метаинформации, просмотр списка, просмотр и редактирование метаданных в виде JSON-строки.
+> Генерация документов и валидация данных вынесены в **отдельные приложения** и в этот UI не входят.
+
+---
+
+## 1. О проекте
+
+- **Название:** DocAI Templates Library
+- **Назначение:** централизованное хранилище DOCX-шаблонов с автоматическим извлечением схемы плейсхолдеров и редактируемой метаинформацией.
+- **Пользователи:** аналитики/контент-менеджеры, интеграторы, AI-агенты (через API).
+- **Ключевые сценарии:**
+  1. Загрузить DOCX (файлом или по URL), задать метаданные, увидеть автоматически извлечённую схему полей, сохранить.
+  2. Просмотреть список всех загруженных шаблонов в виде карточек или таблицы (ag-Grid).
+  3. Открыть шаблон, увидеть метаданные и схему, скачать файл.
+  4. Отредактировать метаданные шаблона как JSON-строку (raw editor) и сохранить.
+  5. Удалить шаблон.
+- **Tone of voice:** технологичный, минималистичный, корпоративный SaaS.
+
+---
+
+## 2. Технологический стек UI
+
+- **Framework:** Angular 21 (standalone components, signals, control flow `@if/@for`).
+- **UI library:** Angular Material (Material 3).
+  - Тема через `mat.define-theme`: `primary = Indigo`, `tertiary = Teal`, `density = -1`.
+  - **Dark mode по умолчанию по системе** (`prefers-color-scheme`), переключатель в Settings (auto/light/dark).
+  - Иконки — **Material Symbols Rounded**.
+  - Типографика — Roboto / Inter.
+- **Таблицы:** **ag-Grid Community** (`ag-grid-angular`) с темой `ag-theme-material`, CSS-переменные ag-Grid переопределены под Material-палитру.
+- **Адаптив:** Angular CDK Layout (Breakpoints), `mat-sidenav` `mode="over"` на mobile, `mode="side"` на desktop.
+- **i18n:** русский + английский (Angular i18n или `@ngx-translate`), переключение в Settings.
+- **JSON-редактор метаданных:** простой `<textarea>` (моноширинный шрифт, без сторонних редакторов) + ручная валидация через `JSON.parse` с подсветкой ошибки.
+- **A11y:** уровень AA, ARIA-роли, видимый focus ring Material.
+
+---
+
+## 3. Информационная архитектура и навигация
+
+Левый `mat-sidenav` + верхний `mat-toolbar` с лого, поиском по шаблонам, индикатором health, переключателем темы, языком и аватаром (заглушка).
+
+Пункты меню:
+
+1. **Templates** — список шаблонов (главный экран).
+2. **Upload** — загрузка нового шаблона.
+3. **AI Assistant** — пункт-заглушка «Скоро будет доступно».
+4. **API Docs** — встроенный Swagger UI (`/api-docs`) в iframe.
+5. **Settings** — тема, язык.
+
+---
+
+## 4. Экраны
+
+Для каждого экрана: цель → ключевые компоненты Material/ag-Grid → состояния (`loading` / `empty` / `error` / `success`).
+
+### 4.1. Templates List (главный экран)
+
+- **Цель:** показать все сохранённые шаблоны, дать быстрый доступ к деталям и действиям.
+- **Шапка:** заголовок «Templates», `mat-form-field` поиск по name/tags, `mat-chip-listbox` фильтр тегов, `mat-button-toggle-group` переключатель вида **Cards / Table**, primary `mat-fab-extended` «Upload».
+- **Cards вид:** `mat-grid-list` (адаптивный gutter), карточка `mat-card` для каждого `ExternalTemplateMetadata`:
+  - заголовок: `name`,
+  - подзаголовок: `version` · `format`,
+  - описание: `description` (truncate 2 строки),
+  - `mat-chip-set` с `tags`,
+  - footer: `updatedAt` (relative time) + `mat-menu` действий: **View**, **Edit metadata**, **Download**, **Delete**.
+- **Table вид:** `ag-grid-angular`, колонки:
+  - `name` (link → details), `version`, `format`, `tags` (chips renderer), `createdAt`, `updatedAt`, `actions` (cellRenderer с иконками view/edit/download/delete).
+  - Сортировка, текстовые/мульти-фильтры, пагинация (25/50/100), persist состояния в localStorage.
+- **Состояния:**
+  - `loading` — `mat-progress-bar` сверху + skeleton-карточки (Cards) / встроенный overlay ag-Grid (Table).
+  - `empty` — `mat-card` по центру, иконка `folder_open`, текст «Нет загруженных шаблонов», CTA «Загрузить первый шаблон» → `/upload`.
+  - `error` — `ErrorBanner` (см. §5) + кнопка Retry.
+  - `success` — данные отрисованы.
+
+### 4.2. Template Details
+
+- **Цель:** показать метаданные и схему конкретного шаблона, дать редактировать JSON и скачать файл.
+- **Layout:** `mat-toolbar` с back-кнопкой, заголовком (`name`), действиями `Download`, `Delete` (с `mat-dialog` подтверждением).
+- **`mat-tab-group`** с тремя вкладками:
+  1. **Overview** — `mat-card` с типизированным выводом полей: `id`, `name`, `description`, `version`, `format`, `tags` (chips), `createdAt`, `updatedAt`, `downloadUrl` (кнопка Download).
+  2. **Schema** — извлечённая схема плейсхолдеров:
+     - `ag-grid-angular` колонок `TemplateField`: `key`, `label`, `type` (badge по `FieldType`), `required` (icon ✓/✗), `defaultValue`, `example`, `description`.
+     - `mat-expansion-panel` «Diagnostics» с полями `DiagnosticInfo` (`parseTimeMs`, `totalPlaceholders`, `uniquePlaceholders`, `duplicatePlaceholders`, `undocumentedKeys`, `syntaxIssues`).
+     - `mat-chip-set` с `WarningInfo[]` (цвет по коду).
+  3. **Metadata JSON** — raw-редактор:
+     - `<textarea>` на всю ширину (моноширинный шрифт, минимум 20 строк), value = `JSON.stringify(metadata, null, 2)`.
+     - Toolbar над textarea: `mat-button-toggle` режим **View / Edit**, кнопки **Format** (форматирует JSON), **Validate** (`JSON.parse`), **Save**, **Revert**.
+     - Под textarea — статус-строка: «✓ Valid JSON» / «✗ Parse error: <message at line:col>».
+     - Save отправляет `PUT /external-templates/:id` (см. §7), при ошибке — `mat-snack-bar` + ErrorBanner.
+- **Состояния:** loading (skeleton tabs), error (ErrorBanner), success.
+
+### 4.3. Upload Template
+
+- **Цель:** загрузить DOCX, задать метаданные, проанализировать схему, сохранить.
+- **`mat-stepper` (linear, vertical на mobile / horizontal на desktop):**
+  1. **Источник файла** — `mat-tab-group`:
+     - *Upload file:* зона drag-and-drop (CDK DragDrop) + кнопка «Choose file», ограничение `.docx`, превью имени и размера.
+     - *By URL:* `mat-form-field` с `templateUrl`.
+  2. **Метаданные** — форма (`mat-form-field`): `name*`, `description`, `version*`, `tags` (`mat-chip-grid`).
+  3. **Анализ схемы** — автозапуск `POST /template/analyze` (с `templateUrl` или `templateContent` base64):
+     - `mat-progress-bar` indeterminate во время запроса,
+     - результат: `ag-grid-angular` полей, `mat-chip-set` warnings, `mat-expansion-panel` Diagnostics,
+     - кнопка «Re-analyze» при необходимости.
+  4. **Review & Save** — итоговый JSON в read-only `<textarea>`, кнопка **Save** → `POST /external-templates` (см. §7).
+- **Состояния:** loading (per-step), error на любом шаге (inline + snack-bar), success → редирект на Template Details.
+
+### 4.4. AI Assistant (заглушка)
+
+- **Цель:** зарезервировать пункт меню под будущую реализацию.
+- **Layout:** пустой экран, `mat-card` по центру:
+  - иконка `smart_toy` (Material Symbols), 64px,
+  - заголовок «AI Assistant»,
+  - текст «AI-ассистент скоро будет доступен. Следите за обновлениями.»,
+  - disabled `mat-stroked-button` «Скоро».
+- Логика, состояния и API — отсутствуют.
+
+### 4.5. API Docs
+
+- **Цель:** дать разработчикам доступ к Swagger UI, не покидая приложение.
+- **Layout:** полноэкранный `<iframe>` на `/api-docs` backend.
+- **Состояния:** loading skeleton поверх iframe, error fallback (если `/api-docs` недоступен) с кнопкой «Открыть в новой вкладке».
+
+### 4.6. Settings
+
+- **Цель:** персональные настройки UI.
+- **Компоненты:**
+  - `mat-button-toggle-group` тема: **Auto / Light / Dark** (по умолчанию Auto).
+  - `mat-button-toggle-group` язык: **RU / EN**.
+  - `mat-card` «О приложении» с версией и ссылкой на API Docs.
+- **Persist:** localStorage.
+
+---
+
+## 5. Сквозные паттерны UX
+
+- **Ошибки:** все ответы с ошибками используют `ApiErrorResponseDto` (`code`, `message`, `field`, `retryable`, `action`, `explain`).
+  - Глобальный HTTP-interceptor → `mat-snack-bar` (короткие) + `ErrorBanner` (на экране, для крупных).
+  - Если `retryable === true` — показывать кнопку **Retry**.
+  - Если `action === 'fix_input'` и есть `field` — подсветить соответствующее поле формы и показать `mat-error` с `explain`.
+- **Загрузка:** `mat-progress-bar` сверху страницы для глобальных запросов, skeleton-блоки для контента, overlay ag-Grid для таблиц.
+- **Пустые состояния:** всегда `mat-card` с иконкой, текстом и CTA.
+- **Подтверждения деструктивных действий:** `mat-dialog` (Delete template).
+- **Адаптив:** breakpoints CDK (`xs/sm/md/lg/xl`); sidenav `over` < `md`, карточки сворачиваются в одну колонку.
+- **A11y:** уровень AA, ARIA-labels на всех интерактивных элементах, keyboard navigation, focus trap в диалогах, контраст соответствует Material M3 tokens.
+
+---
+
+## 6. Дизайн-токены и брендинг
+
+- **Палитра M3:** `primary = Indigo` (M3 baseline), `tertiary = Teal`, нейтральные surfaces из M3 baseline.
+- **Density:** `-1`.
+- **Радиусы:** 12px (cards), 8px (inputs/buttons).
+- **Иконки:** Material Symbols Rounded, weight 400, fill 0.
+- **Типографика:** Roboto (fallback Inter), Material Type Scale.
+- **Тёмная тема:** включается автоматически по `prefers-color-scheme: dark`, surface tokens из M3 dark baseline.
+- **ag-Grid:** базовая `ag-theme-material`, переопределение CSS-переменных:
+  - `--ag-background-color`, `--ag-foreground-color`, `--ag-header-background-color`, `--ag-row-hover-color`, `--ag-selected-row-background-color`, `--ag-border-color` — из текущих Material tokens (light/dark).
+
+---
+
+## 7. Приложение A. API-контракт
+
+> Базовый URL backend: `http://localhost:3000`. Полная спецификация — Swagger по `GET /api-docs`.
+
+### 7.1. Реализованные эндпоинты (используются UI)
+
+| Метод | Эндпоинт                       | Назначение                                       | Где используется                |
+|-------|--------------------------------|--------------------------------------------------|---------------------------------|
+| GET   | `/health`                      | Health-check сервиса                             | Toolbar индикатор статуса       |
+| GET   | `/external-templates`          | Список шаблонов (`ExternalTemplateMetadata[]`)   | Templates List                  |
+| GET   | `/external-templates/:id`      | Детали шаблона (`ExternalTemplateMetadata`)      | Template Details                |
+| POST  | `/template/analyze`            | Извлечение схемы из DOCX (`TemplateAnalysisResponse`) | Upload → шаг «Анализ»     |
+
+#### Примеры
+
+**`GET /external-templates`** → `200 OK`
+```json
+[
+  {
+    "id": "tpl_invoice_v3",
+    "name": "Счёт на оплату",
+    "description": "Шаблон счёта для юрлиц",
+    "version": "3.0.1",
+    "format": "docx",
+    "downloadUrl": "https://storage.example.com/tpl_invoice_v3.docx",
+    "tags": ["invoice", "finance"],
+    "createdAt": "2026-01-15T10:00:00Z",
+    "updatedAt": "2026-04-01T12:30:00Z"
+  }
+]
+```
+
+**`POST /template/analyze`**
+```json
+{ "templateUrl": "https://storage.example.com/tpl_invoice_v3.docx" }
+```
+или
+```json
+{ "templateContent": "<base64 of DOCX>", "templateName": "Invoice v3" }
+```
+→ `200 OK`
+```json
+{
+  "schema": {
+    "templateId": "tpl_invoice_v3",
+    "templateName": "Invoice v3",
+    "version": "3.0.1",
+    "placeholderSyntax": "double_curly",
+    "totalPlaceholders": 12,
+    "fields": [
+      { "key": "fullName", "label": "ФИО", "type": "string", "required": true, "example": "Иванов И.И." },
+      { "key": "amount",   "label": "Сумма", "type": "currency", "required": true, "example": 12500.50 }
+    ]
+  },
+  "warnings": [
+    { "code": "LOW_CONFIDENCE_SCHEMA", "message": "Тип поля 'date' определён эвристически" }
+  ],
+  "diagnostics": {
+    "parseTimeMs": 87,
+    "totalPlaceholders": 12,
+    "uniquePlaceholders": 12,
+    "duplicatePlaceholders": [],
+    "undocumentedKeys": [],
+    "syntaxIssues": []
+  }
+}
+```
+
+### 7.2. Эндпоинты «to be implemented» (контракт для UI)
+
+> Эти эндпоинты **ещё не реализованы** в backend, но UI должен быть спроектирован под них. Контракт — целевой.
+
+| Метод  | Эндпоинт                       | Назначение                                       | Где используется                |
+|--------|--------------------------------|--------------------------------------------------|---------------------------------|
+| POST   | `/external-templates`          | Создание шаблона: загрузка файла + метаданные    | Upload → шаг «Save»             |
+| PUT    | `/external-templates/:id`      | Обновление метаданных шаблона                    | Template Details → Metadata JSON |
+| DELETE | `/external-templates/:id`      | Удаление шаблона                                 | Templates List / Details        |
+
+#### Контракт `POST /external-templates`
+
+`multipart/form-data`:
+- `file` (binary, required, `.docx`) — **либо**
+- `templateUrl` (string, required, если `file` не передан) — URL для скачивания.
+- `metadata` (string, JSON) — поля `name*`, `description`, `version*`, `tags[]`.
+
+→ `201 Created`, тело — `ExternalTemplateMetadata` (включая сгенерированный `id`, `createdAt`, `updatedAt`, `downloadUrl`, опционально `schema`).
+
+Ошибки: `400` (валидация), `415` (неподдерживаемый формат), `502` (storage).
+
+#### Контракт `PUT /external-templates/:id`
+
+`application/json`, тело — частичный или полный `ExternalTemplateMetadata` (без `id`, `createdAt`):
+```json
+{
+  "name": "Счёт на оплату",
+  "description": "Обновлённое описание",
+  "version": "3.0.2",
+  "tags": ["invoice", "finance", "v3"],
+  "schema": { "...": "..." }
+}
+```
+→ `200 OK`, тело — обновлённый `ExternalTemplateMetadata`.
+Ошибки: `400` (невалидный JSON / схема), `404` (не найден), `409` (конфликт версии).
+
+#### Контракт `DELETE /external-templates/:id`
+
+→ `204 No Content`.
+Ошибки: `404` (не найден), `409` (нельзя удалить — есть зависимости).
+
+### 7.3. Вне скоупа фронта
+
+`/template/validate`, `/template/generate`, `/template/schema`, `/jobs/:id`, `/diagnostics`, `/ai/manifest`, `/ai/capabilities`, `/ai/examples` — реализуются в **других приложениях**, в этом UI не используются.
+
+---
+
+## 8. Приложение B. Типы (из `packages/shared-types`)
+
+```ts
+// FieldType
+export enum FieldType {
+  STRING = 'string',
+  NUMBER = 'number',
+  DATE = 'date',
+  BOOLEAN = 'boolean',
+  ARRAY = 'array',
+  OBJECT = 'object',
+  ENUM = 'enum',
+  EMAIL = 'email',
+  PHONE = 'phone',
+  URL = 'url',
+  CURRENCY = 'currency',
+}
+
+// PlaceholderSyntax
+export enum PlaceholderSyntax {
+  DOUBLE_CURLY = 'double_curly', // {{key}}
+  DOLLAR_CURLY = 'dollar_curly', // ${key}
+  PERCENT = 'percent',           // %key%
+  CUSTOM = 'custom',
+}
+
+export interface TemplateField {
+  key: string;
+  label?: string;
+  type: FieldType;
+  required: boolean;
+  defaultValue?: unknown;
+  description?: string;
+  format?: string;
+  pattern?: string;
+  enumValues?: string[];
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+  example?: unknown;
+}
+
+export interface TemplateSchema {
+  templateId?: string;
+  templateName?: string;
+  version?: string;
+  fields: TemplateField[];
+  placeholderSyntax: PlaceholderSyntax;
+  totalPlaceholders: number;
+  metadata?: Record<string, unknown>;
+}
+
+export interface DiagnosticInfo {
+  parseTimeMs: number;
+  totalPlaceholders: number;
+  uniquePlaceholders: number;
+  duplicatePlaceholders: string[];
+  undocumentedKeys: string[];
+  syntaxIssues: string[];
+}
+
+export interface WarningInfo {
+  code: string;
+  message: string;
+  field?: string;
+  details?: unknown;
+}
+
+export interface TemplateAnalysisResponse {
+  schema: TemplateSchema;
+  warnings: WarningInfo[];
+  diagnostics: DiagnosticInfo;
+}
+
+export interface ExternalTemplateMetadata {
+  id: string;
+  name: string;
+  description?: string;
+  version: string;
+  format: string;          // 'docx' | 'pdf' | ...
+  downloadUrl: string;
+  schema?: TemplateSchema;
+  tags?: string[];
+  createdAt: string;       // ISO8601
+  updatedAt: string;       // ISO8601
+}
+
+// Единый формат ошибок
+export interface ApiErrorResponseDto {
+  code: string;            // см. таблицу error-codes ниже
+  message: string;
+  field?: string;
+  retryable: boolean;
+  action: 'retry' | 'ask_user' | 'fix_input' | 'fatal';
+  explain?: string;
+  details?: unknown;
+}
+```
+
+### Коды ошибок (для маппинга на UX)
+
+| Код                          | Retryable | Action     | UX-подсказка                                |
+|------------------------------|-----------|------------|---------------------------------------------|
+| `TEMPLATE_DOWNLOAD_FAILED`   | ✅        | retry      | Snackbar + кнопка Retry                     |
+| `TEMPLATE_PARSE_FAILED`      | ❌        | fix_input  | Inline error в шаге «Источник файла»        |
+| `NO_PLACEHOLDERS_FOUND`      | ❌        | fix_input  | Inline error на шаге «Анализ»               |
+| `INVALID_PLACEHOLDER_SYNTAX` | ❌        | fix_input  | Inline error + ссылка на пример             |
+| `STORAGE_ERROR`              | ✅        | retry      | Snackbar + Retry                            |
+| `INTERNAL_ERROR`             | ✅        | fatal      | Полноэкранный ErrorBanner                   |
+
+### Коды предупреждений
+
+- `UNUSED_FIELD` — поле передано, но отсутствует в шаблоне.
+- `DEFAULT_VALUE_USED` — применено значение по умолчанию.
+- `LOW_CONFIDENCE_SCHEMA` — рекомендуется ручная проверка.
+- `TEMPLATE_HAS_UNDOCUMENTED_KEYS` — обнаружены недокументированные плейсхолдеры.
+
+---
+
+## 9. Что **не** входит в скоуп этого UI
+
+- ❌ Валидация пользовательских данных по схеме (`POST /template/validate`).
+- ❌ Генерация документов (`POST /template/generate`, `/jobs/:id`).
+- ❌ Просмотр диагностики сервиса (`/diagnostics`).
+- ❌ Полноценный AI Assistant (`/ai/*`) — только пункт-заглушка в меню.
+- ❌ Аутентификация и авторизация.
+- ❌ История изменений шаблонов / версионирование.
+- ❌ PDF preview, PWA, push-уведомления.
+- ❌ Drag&drop в Templates List (только в Upload).
+
+---
+
+## 10. Definition of Done для Figma Make
+
+- Все экраны §4 спроектированы с состояниями `loading / empty / error / success`.
+- Sidenav-навигация с пятью пунктами; AI Assistant — заглушка.
+- Темы Light + Dark с palette Indigo + Teal, переключение работает.
+- Templates List поддерживает оба вида: **Cards** и **ag-Grid Table**.
+- Template Details содержит вкладку **Metadata JSON** с `<textarea>` и кнопками Format/Validate/Save/Revert.
+- Upload — `mat-stepper` из 4 шагов с автозапуском `POST /template/analyze`.
+- Все формы и таблицы используют **только Angular Material** компоненты (за исключением ag-Grid в табличном виде).
+- Ошибки рендерятся через единый паттерн `ApiErrorResponseDto`.
+- Адаптив: mobile / tablet / desktop.
+

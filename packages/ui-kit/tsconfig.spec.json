@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist/out-tsc/spec",
+    "types": ["jest", "node"],
+    "module": "CommonJS",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": ["**/*.spec.ts", "src/**/*.d.ts", "src/test-setup.ts"]
+}

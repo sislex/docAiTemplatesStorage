@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist/sb-host",
+    "types": []
+  },
+  "files": ["src/storybook-host.ts", ".storybook/preview.ts", ".storybook/main.ts"],
+  "include": ["src/**/*.ts", ".storybook/**/*.ts"],
+  "exclude": ["**/*.spec.ts"]
+}
