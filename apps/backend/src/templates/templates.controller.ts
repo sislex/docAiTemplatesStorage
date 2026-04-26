@@ -16,16 +16,16 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiProduces } from '@nestjs/swagger';
-import type { TemplateMetadata } from '@templateStorage/shared-types';
+import { TemplateMetadata } from '@templateStorage/shared-types';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import type { Response } from 'express';
+import { Response } from 'express';
 import { memoryStorage } from 'multer';
 
 import { CreateTemplateDto } from './dto/create-template.dto';
-import type { ListTemplatesQueryDto } from './dto/list-templates-query.dto';
-import type { UpdateMetadataDto } from './dto/update-metadata.dto';
-import type { TemplatesService } from './templates.service';
+import { ListTemplatesQueryDto } from './dto/list-templates-query.dto';
+import { UpdateMetadataDto } from './dto/update-metadata.dto';
+import { TemplatesService } from './templates.service';
 
 const MAX_FILE_SIZE = parseInt(process.env['MAX_FILE_SIZE'] ?? '20971520', 10);
 

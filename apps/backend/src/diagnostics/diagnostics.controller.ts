@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
-import type { DiagnosticsService, DiagnosticsResult } from './diagnostics.service';
+import { DiagnosticsService, DiagnosticsResult } from './diagnostics.service';
 
 @ApiTags('diagnostics')
 @Controller('diagnostics')

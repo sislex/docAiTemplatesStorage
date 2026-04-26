@@ -31,6 +31,12 @@ module.exports = {
   },
   overrides: [
     {
+      files: ['apps/backend/src/**/*.controller.ts'],
+      rules: {
+        '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'no-type-imports' }],
+      },
+    },
+    {
       files: ['apps/frontend/vite.config.ts'],
       rules: {
         'import/no-unresolved': 'off',
