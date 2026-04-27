@@ -50,6 +50,12 @@ module.exports = {
       },
     },
     {
+      files: ['packages/ai-assistant-backend/src/**/*.ts'],
+      rules: {
+        'import/no-unresolved': 'off',
+      },
+    },
+    {
       files: ['apps/frontend/src/app/components/**/*.tsx'],
       rules: {
         '@typescript-eslint/no-unused-vars': 'off',

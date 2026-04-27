@@ -11,8 +11,11 @@ import {
   type ChatState,
   type ChatSession,
 } from '../../../../../packages/ai-assistant-ui/src';
+import { askAssistant } from '../api/assistant';
+import type { AssistantHistoryItem } from '../api/assistant';
 
 import { useTheme } from './ThemeContext';
+import type { ApiErrorResponseDto } from './types';
 
 type AssistantAction = ChatAction;
 
@@ -47,6 +50,32 @@ function seedState(language: 'ru' | 'en'): ChatState {
   };
 }
 
+function resolveAssistantError(error: unknown, language: 'ru' | 'en'): string {
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  if (error && typeof error === 'object' && 'message' in error) {
+    const typed = error as ApiErrorResponseDto;
+    return typed.explain ?? typed.message;
+  }
+
+  return language === 'ru' ? 'Не удалось получить ответ ассистента.' : 'Assistant request failed.';
+}
+
+function buildHistoryMessages(chat: ChatSession | undefined): AssistantHistoryItem[] {
+  if (!chat) {
+    return [];
+  }
+
+  return chat.messages
+    .filter(
+      (message) =>
+        (message.role === 'user' || message.role === 'assistant') && message.text.trim().length > 0,
+    )
+    .map((message) => ({ role: message.role, content: message.text.trim() }));
+}
+
 export function AIAssistant() {
   const { language } = useTheme();
   const [state, dispatch] = useReducer(reducer, language as 'ru' | 'en', seedState);
@@ -62,7 +91,7 @@ export function AIAssistant() {
     });
   }
 
-  function handleSendQuestion(question: string) {
+  async function handleSendQuestion(question: string) {
     const text = question.trim();
     if (!text || !state.activeChatId) {
       return;
@@ -70,6 +99,10 @@ export function AIAssistant() {
 
     const now = new Date().toISOString();
     const activeChatId = state.activeChatId;
+    const activeChat = state.chats.find((chat) => chat.id === activeChatId);
+    const history = buildHistoryMessages(activeChat);
+    const skill = 'template_storage_app_support';
+
     dispatch({
       type: 'SEND_QUESTION',
       payload: {
@@ -77,8 +110,11 @@ export function AIAssistant() {
       },
     });
 
-    // Frontend-only prototype: assistant response is mocked until model integration.
-    setTimeout(() => {
+    dispatch({ type: 'SET_SUBMITTING', payload: { value: true } });
+    dispatch({ type: 'SET_ERROR', payload: { error: null } });
+
+    try {
+      const result = await askAssistant({ message: text, history, skill });
       dispatch({
         type: 'RECEIVE_ASSISTANT_MESSAGE',
         payload: {
@@ -86,18 +122,22 @@ export function AIAssistant() {
           message: {
             id: `assistant-${Date.now()}`,
             role: 'assistant',
-            text:
-              language === 'ru'
-                ? `Принял вопрос: "${text}". На этом этапе UI работает без подключения моделей.`
-                : `Received your question: "${text}". This UI currently runs without model integration.`,
+            text: result.answer,
             createdAt: new Date().toISOString(),
             status: 'sent',
             kind: 'text',
-            meta: { source: 'mock' },
+            meta: { source: 'backend', model: result.model },
           },
         },
       });
-    }, 350);
+    } catch (error) {
+      dispatch({
+        type: 'SET_ERROR',
+        payload: { error: resolveAssistantError(error, language as 'ru' | 'en') },
+      });
+    } finally {
+      dispatch({ type: 'SET_SUBMITTING', payload: { value: false } });
+    }
   }
 
   const labels =

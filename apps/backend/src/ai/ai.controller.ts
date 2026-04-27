@@ -1,5 +1,8 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+
+import { AiService, AiChatResult } from './ai.service';
+import { AiChatDto } from './dto/ai-chat.dto';
 
 const BASE_URL = 'http://localhost:4000';
 const MAX_FILE_SIZE = parseInt(process.env['MAX_FILE_SIZE'] ?? '20971520', 10);
@@ -7,6 +10,8 @@ const MAX_FILE_SIZE = parseInt(process.env['MAX_FILE_SIZE'] ?? '20971520', 10);
 @ApiTags('ai')
 @Controller('ai')
 export class AiController {
+  constructor(private readonly aiService: AiService) {}
+
   @Get('manifest')
   @ApiOperation({ summary: 'AI-манифест: все операции API' })
   getManifest() {
@@ -132,6 +137,16 @@ export class AiController {
         operation: 'deleteTemplate',
         curl: `curl -X DELETE "${BASE_URL}/api/templates/{id}"`,
       },
+      {
+        operation: 'chat',
+        curl: `curl -X POST "${BASE_URL}/ai/chat" -H "Content-Type: application/json" -d '{"message":"Привет","model":"gpt-4o-mini"}'`,
+      },
     ];
+  }
+
+  @Post('chat')
+  @ApiOperation({ summary: 'Отправить вопрос AI ассистенту' })
+  chat(@Body() body: AiChatDto): Promise<AiChatResult> {
+    return this.aiService.chat(body);
   }
 }

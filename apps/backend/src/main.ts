@@ -1,10 +1,15 @@
 import 'reflect-metadata';
+import { resolve } from 'node:path';
+
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { config as loadEnv } from 'dotenv';
 
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+
+loadEnv({ path: resolve(__dirname, '..', '.env') });
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);

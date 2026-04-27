@@ -14,9 +14,9 @@ async function parseApiError(response: Response): Promise<ApiErrorResponseDto | 
       message: payload.message ?? `HTTP ${response.status}`,
       retryable: payload.retryable ?? false,
       action: payload.action ?? 'fatal',
-      field: payload.field,
-      explain: payload.explain,
-      details: payload.details,
+      ...(payload.field ? { field: payload.field } : {}),
+      ...(payload.explain ? { explain: payload.explain } : {}),
+      ...(payload.details !== undefined ? { details: payload.details } : {}),
     };
   }
 
@@ -24,8 +24,12 @@ async function parseApiError(response: Response): Promise<ApiErrorResponseDto | 
   return text || `HTTP ${response.status}`;
 }
 
-export async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_PREFIX}${path}`, init);
+export async function requestJson<T>(
+  path: string,
+  init?: RequestInit,
+  baseUrl = API_PREFIX,
+): Promise<T> {
+  const response = await fetch(`${baseUrl}${path}`, init);
 
   if (!response.ok) {
     throw await parseApiError(response);
