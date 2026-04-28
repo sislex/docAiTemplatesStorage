@@ -3,6 +3,7 @@ import type { TemplateMetadata } from '@templateStorage/shared-types';
 
 import { ErrorCode } from '../common/constants/error-codes';
 import { ServiceException } from '../common/exceptions/service.exception';
+// DI token for constructor injection must be a value import at runtime.
 import type { TemplatesService } from '../templates/templates.service';
 
 interface CopilotConfig {
