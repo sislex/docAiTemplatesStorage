@@ -4,7 +4,19 @@ import { AiService } from './ai.service';
 
 describe('AiService', () => {
   it('delegates message to ai-assistant-backend module', async () => {
-    const service = new AiService();
+    const templatesService = {
+      list: jest.fn(async () => [
+        {
+          id: 'tpl-1',
+          name: 'Invoice',
+          description: 'Invoice template',
+          placeholders: [{ name: 'client', type: 'string', label: 'Client', required: true }],
+          createdAt: '2026-04-27T10:00:00.000Z',
+          updatedAt: '2026-04-27T10:00:00.000Z',
+        },
+      ]),
+    };
+    const service = new AiService(templatesService as never);
     const config = {
       apiKey: 'token',
       baseUrl: 'https://models.inference.ai.azure.com/chat/completions',
@@ -35,6 +47,14 @@ describe('AiService', () => {
         model: 'gpt-4o-mini',
         skill: 'template_storage_app_support',
         history: [{ role: 'assistant', content: 'Здравствуйте!' }],
+        templates: [
+          {
+            id: 'tpl-1',
+            name: 'Invoice',
+            placeholderCount: 1,
+            updatedAt: '2026-04-27T10:00:00.000Z',
+          },
+        ],
       },
       { config, client },
     );
@@ -42,7 +62,10 @@ describe('AiService', () => {
   });
 
   it('throws ServiceException for backend failures', async () => {
-    const service = new AiService();
+    const templatesService = {
+      list: jest.fn(async () => []),
+    };
+    const service = new AiService(templatesService as never);
     const backendModule = {
       loadCopilotConfig: jest.fn(() => ({
         apiKey: 'token',

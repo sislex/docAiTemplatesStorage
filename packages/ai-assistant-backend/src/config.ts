@@ -1,4 +1,4 @@
-import type { CopilotConfig } from './types';
+import type { CopilotConfig } from './types.js';
 
 const DEFAULT_BASE_URL = 'https://models.inference.ai.azure.com/chat/completions';
 const DEFAULT_MODEL = 'gpt-4o-mini';

@@ -27,6 +27,14 @@ export interface AskAssistantInput {
   model?: string;
   skill?: string;
   history?: CopilotMessage[];
+  templates?: TemplateContextItem[];
+}
+
+export interface TemplateContextItem {
+  id: string;
+  name: string;
+  placeholderCount: number;
+  updatedAt: string;
 }
 
 export interface AskAssistantResult {

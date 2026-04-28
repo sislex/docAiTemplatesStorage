@@ -35,5 +35,6 @@ import { TemplatesService } from './templates.service';
       inject: [TemplateRepository],
     },
   ],
+  exports: [TemplatesService],
 })
 export class TemplatesModule {}

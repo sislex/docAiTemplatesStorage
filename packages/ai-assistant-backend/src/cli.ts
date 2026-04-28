@@ -1,6 +1,6 @@
-import { askAssistant } from './chatService';
-import { loadCopilotConfig } from './config';
-import { CopilotClient } from './copilotClient';
+import { askAssistant } from './chatService.js';
+import { loadCopilotConfig } from './config.js';
+import { CopilotClient } from './copilotClient.js';
 
 interface CliArgs {
   model?: string;
